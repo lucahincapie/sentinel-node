@@ -1,0 +1,24 @@
+# --- Build output ---
+# Matches any folder named "build": Arduino CLI --export-binaries output
+# (e.g. <sketch>/build/arduino.renesas_uno.minima/) and Python build output.
+# Normal Arduino builds go to %LOCALAPPDATA%\arduino instead.
+# Do not name source or fixture folders "build".
+build/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# --- Secrets: never commit credentials or Wi-Fi passwords ---
+# Commit placeholder templates instead (.env.example, arduino_secrets.h.example).
+.env
+.env.*
+!.env.example
+arduino_secrets.h
+
+# --- OS clutter ---
+Thumbs.db
+Desktop.ini

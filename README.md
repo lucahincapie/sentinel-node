@@ -1,2 +1,82 @@
-# sentinel-node
-Fault-tolerant embedded monitoring and telemetry system built with Arduino Uno R4, ESP8266, and Python.
+# Sentinel Node
+
+A bench-top telemetry and monitoring prototype in early development. The plan: an Arduino UNO R4 Minima will sample sensor data and report to a Python ground station, first over USB serial and later over an ESP8266 Wi-Fi link. The engineering goal is to detect, handle, and test communication and sensor faults, and to document the results honestly.
+
+Educational prototype: not safety-critical, not certified, and not hardened for production security.
+
+## Roadmap and status
+
+Status levels: **Planned** (described, not built), **Implemented** (code in this repo), **Tested** (test or hardware run recorded with its conditions in [`docs/progress-log.md`](docs/progress-log.md)).
+
+| Stage | Scope | Status |
+|---|---|---|
+| 0. Setup | Repository, docs, toolchain | Done |
+| 1. Hardware + USB | Upload and blink, serial output, one kit sensor, Python receiver writing timestamped CSV | In progress: upload verified; the sketch blinks the LED and sends numbered lines over USB serial |
+| 2. Binary telemetry | Documented, versioned packet format with sequence numbers and CRC corruption detection; stream parser with automated tests | Planned |
+| 3. Failure handling | Operating modes and status reporting, heartbeats and link timeouts, supported sensor-fault detection, status and alert LEDs, bounded buffer for short disconnections | Planned |
+| 4. Wireless | ESP8266 link, added only after the wired system works | Planned |
+| 5. Demo + docs | Ground-station plots, repeatable fault-injection tests, measured results, wiring and architecture docs | Planned |
+
+Firmware so far blinks the LED and prints a counter over USB serial, which proves the build, upload, and serial paths. No ground-station code exists yet.
+
+## Hardware
+
+| Part | Notes |
+|---|---|
+| Arduino UNO R4 Minima | Renesas RA4M1, 5 V logic. From a SunFounder 3-in-1 Super Starter Kit. Connected over USB-C; uploads verified. |
+| ESP8266 Wi-Fi module + adapter | From the same kit. Exact module and firmware not yet verified. |
+| Breadboard, wires, kit sensors | First sensor not yet chosen. |
+| Windows 11 laptop | Runs the build tools and the ground station. |
+
+## Toolchain
+
+| Tool | Version | Purpose |
+|---|---|---|
+| [Arduino CLI](https://arduino.github.io/arduino-cli/) | 1.5.1 | Compile and upload firmware |
+| Arduino UNO R4 Boards core (`arduino:renesas_uno`) | 1.6.0 | Board support (FQBN `arduino:renesas_uno:minima`) |
+| Python | 3.14 | Ground station |
+
+## Build and upload (Windows)
+
+Verified 2026-09-29.
+
+One-time setup: install Arduino CLI 1.5.1. Then, in a regular (non-admin) terminal, run these two commands and approve the Windows driver prompt:
+
+```
+arduino-cli core update-index
+arduino-cli core install arduino:renesas_uno@1.6.0
+```
+
+With the board on USB, from the repository root:
+
+```
+arduino-cli board list
+arduino-cli compile --upload --port COM3 --fqbn arduino:renesas_uno:minima firmware\sentinel_node
+```
+
+Use the port that `board list` reports; `COM3` is what it showed on the development laptop. Save and close your editor before uploading.
+
+## Repository layout
+
+```
+firmware/         Arduino sketch (currently blink + serial counter)
+ground_station/   Python receiver, logging  (planned)
+tests/            Automated tests           (planned)
+docs/             Progress log; later protocol, wiring, and test procedures
+CLAUDE.md         Working rules for the AI assistant used on this project
+```
+
+Folders are added when they have real content.
+
+## Scope and security
+
+- Communication is planned for USB or a trusted local network only. The device is not meant to be reachable from the internet.
+- The planned CRC will detect accidental corruption. It will not authenticate or encrypt data.
+
+## How this project is built
+
+Development is incremental, one verified stage at a time. I use an AI assistant (Claude Code) as a mentor and pair programmer; its working rules are in [`CLAUDE.md`](CLAUDE.md).
+
+## License
+
+MIT. See [LICENSE](LICENSE).
