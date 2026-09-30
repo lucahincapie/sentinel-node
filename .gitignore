@@ -5,6 +5,9 @@
 # Do not name source or fixture folders "build".
 build/
 
+# --- Ground-station recordings (local data, not source) ---
+ground_station/output/
+
 # --- Python ---
 __pycache__/
 *.py[cod]
