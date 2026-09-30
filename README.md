@@ -11,13 +11,13 @@ Status levels: **Planned** (described, not built), **Implemented** (code in this
 | Stage | Scope | Status |
 |---|---|---|
 | 0. Setup | Repository, docs, toolchain | Done |
-| 1. Hardware + USB | Upload and blink, serial output, one kit sensor, Python receiver writing timestamped CSV | In progress: upload verified; the sketch blinks the LED and sends numbered lines over USB serial |
+| 1. Hardware + USB | Upload and blink, serial output, one kit sensor, Python receiver writing timestamped CSV | In progress: upload verified; a potentiometer on A0 is read and sent over USB serial (end stops measured at 0 and 935) |
 | 2. Binary telemetry | Documented, versioned packet format with sequence numbers and CRC corruption detection; stream parser with automated tests | Planned |
 | 3. Failure handling | Operating modes and status reporting, heartbeats and link timeouts, supported sensor-fault detection, status and alert LEDs, bounded buffer for short disconnections | Planned |
 | 4. Wireless | ESP8266 link, added only after the wired system works | Planned |
 | 5. Demo + docs | Ground-station plots, repeatable fault-injection tests, measured results, wiring and architecture docs | Planned |
 
-Firmware so far blinks the LED and prints a counter over USB serial, which proves the build, upload, and serial paths. No ground-station code exists yet.
+Firmware so far reads a potentiometer on A0 every 200 ms and prints the value with a line counter over USB serial (temporary text format). No ground-station code exists yet.
 
 ## Hardware
 
@@ -25,7 +25,7 @@ Firmware so far blinks the LED and prints a counter over USB serial, which prove
 |---|---|
 | Arduino UNO R4 Minima | Renesas RA4M1, 5 V logic. From a SunFounder 3-in-1 Super Starter Kit. Connected over USB-C; uploads verified. |
 | ESP8266 Wi-Fi module + adapter | From the same kit. Exact module and firmware not yet verified. |
-| Breadboard, wires, kit sensors | First sensor not yet chosen. |
+| 10 kΩ potentiometer + 1 kΩ resistor | First sensor input on A0. The resistor limits current if the circuit is miswired. |
 | Windows 11 laptop | Runs the build tools and the ground station. |
 
 ## Toolchain
@@ -59,7 +59,7 @@ Use the port that `board list` reports; `COM3` is what it showed on the developm
 ## Repository layout
 
 ```
-firmware/         Arduino sketch (currently blink + serial counter)
+firmware/         Arduino sketch (reads A0, prints over USB serial)
 ground_station/   Python receiver, logging  (planned)
 tests/            Automated tests           (planned)
 docs/             Progress log; later protocol, wiring, and test procedures

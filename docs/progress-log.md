@@ -54,3 +54,39 @@ Dated entries, newest last. **Verified** items were observed on this machine or 
 ### Next steps
 1. Commit on approval.
 2. Choose the Stage 1 sensor (analog, on A0); review a wiring photo before powering it.
+
+## 2026-09-30: Stage 1, first sensor (potentiometer on A0)
+
+### Circuit as built
+Wired with USB unplugged, on the left half of the full-size breadboard (each numbered line's holes a-e are connected):
+
+| Part | Position | Role |
+|---|---|---|
+| 10 kΩ kit trimmer potentiometer (3 legs in a triangle) | b22, c23, b24 | b22 and b24 are the track ends; c23 is the wiper |
+| 1 kΩ resistor (checked by Luca) | e18 to e22 | Current limiter between 5V and the top of the pot |
+| Red wire | board 5V to a18 | Supply |
+| Signal wire | board A0 to e23 | Wiper voltage |
+| Black wire | board GND to e24 | Return |
+
+Why the 1 kΩ resistor: the USB 5V path on the Minima has no fuse (schematic), no multimeter was available, and the wiper leg could not be confirmed from documentation. If a leg were misidentified, the resistor caps a 5V-to-GND fault at about 5 mA. The expected cost is a lower top reading: about 1023 × 10/11 ≈ 930.
+
+The first placement put two legs on the same breadboard line (a23 and c23), which would have joined them. The pot was rotated 90° before any wires were added. The wiring-photo review was skipped at Luca's choice; the circuit was verified by its readings instead (below).
+
+### Verified
+- After power-on the board enumerated normally on COM3 (`arduino-cli board list`; `Get-PnpDevice` status OK). Luca reported the power LED on, the L LED blinking, and no warm parts.
+- Sketch: `analogRead(A0)` every 200 ms, printed as `tick <n> a0 <value>` (temporary text format). 39,220 B flash, 3,948 B RAM.
+- Readings with `arduino-cli monitor` on laptop USB power:
+  - At rest the value varies by 1-3 counts (e.g. 448-451, 932-935).
+  - Physical end stops read **0** and **934-935** (predicted about 930, range 900-945).
+  - The knob at roughly mid-travel read about 430-450 (a linear divider predicts about 465).
+- Derived from the top reading (a calculation, not a measurement): 934/1024 = R/(R + 1 kΩ) gives R ≈ 10.4 kΩ, within a few percent of the 10 kΩ rating.
+- The single leg (c23) is the wiper. If a paired leg were the wiper, mid-travel would read about 850 instead of about 450. Mid-travel was judged by eye, so this is strong but not exact evidence.
+- An earlier sweep (188-835) did not reach the end stops; the full sweep did.
+
+### Unresolved
+- pyserial on Python 3.14 not smoke-tested yet.
+- ESP8266 module version, firmware, and adapter logic levels unknown (needed before Stage 4).
+
+### Next steps
+1. Commit on approval.
+2. Python ground station: create `.venv`, install pyserial (approval needed), smoke-test port listing, then write a receiver that adds host timestamps and saves CSV.
